@@ -1,4 +1,4 @@
-\# Parametric Multi-Task Optimization
+# Parametric Multi-Task Optimization
 
 
 
@@ -6,11 +6,11 @@ A Bayesian optimization framework that combines Gaussian Processes with task par
 
 
 
-\## Quick Start
+## Quick Start
 
 
 
-\### Running Optimization
+### Running Optimization
 
 
 
@@ -20,13 +20,13 @@ Execute the main optimization script via command line:
 
 ```bash
 
-python main\_script.py --ec\_gen 100 --ec\_iter 50 --trials 2 --template nonlinear
+python main.py --ec_gen 100 --ec_iter 50 --trials 2 --template nonlinear
 
 ```
 
 
 
-\#### Command Line Arguments
+#### Command Line Arguments
 
 
 
