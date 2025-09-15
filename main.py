@@ -217,11 +217,23 @@ def solver_pool_gp_soo(problem_params, ec_config, trial):
     model_list_prepare = []
     likelihood_list_prepare = []
 
+    # Filter tasks: keep only the best p fraction based on objective values
+    p = 0.7  # Keep best 70% of tasks (adjust this value as needed)
+    num_tasks_to_keep = max(1, int(pool_active * p))  # Ensure at least 1 task
+
+    # Get indices of best tasks (lowest objective values)
+    objective_values = pool_bayesian_best_results[:pool_active, -1]  # Last column is objective
+    _, best_indices = torch.topk(objective_values, num_tasks_to_keep, largest=False)  # smallest values first
+    best_indices = best_indices.sort()[0]  # Sort indices to maintain order
+
+    # Create filtered data (copy, don't modify original)
+    filtered_best_results = pool_bayesian_best_results[best_indices, :]
+
     for d in range(n_dim):
         likelihood = gpytorch.likelihoods.GaussianLikelihood()
         model = ArdGP(  # Changed from VanillaGP to ArdGP
-            pool_bayesian_best_results[:pool_active, n_dim:(n_dim + n_task_params)],
-            pool_bayesian_best_results[:pool_active, d],
+            filtered_best_results[:, n_dim:(n_dim + n_task_params)],  # Use filtered data
+            filtered_best_results[:, d],  # Use filtered data
             likelihood)
         likelihood_list_prepare.append(likelihood)
         model_list_prepare.append(model)
@@ -286,7 +298,7 @@ if __name__ == "__main__":
         problem_name = f"{problem_name_template}_{cur_name}_high"
         direct_name = f"{problem_name}_result_{dim_size}_{task_params}"
 
-        print(f"Running {problem_name} with Pool GP SOO")
+        print(f"Running {problem_name} with PMTO")
         print(f"Using EC parameters: gen={args.ec_gen}, iter={args.ec_iter}")
 
         # Run solver
